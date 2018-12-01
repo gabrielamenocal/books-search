@@ -1,7 +1,7 @@
 var express = require("express");
 const mongoose = require("mongoose");
 const routes = require("./routes/api");
-var cheerio = require("cheerio");
+var path = require("path");
 var axios = require("axios");
 var app = express();
 var bodyParser = require('body-parser')
@@ -40,20 +40,9 @@ app.get("/books", function(req, res) {
 });
 
 
-
-
-
-
-
-
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
-app.use( express.static( `${__dirname}/../build` ) );
-
-const path = require('path')
+app.use(express.static(path.join(__dirname, 'build')) );
 app.get('*', (req, res)=>{
-  res.sendFile(path.join(__dirname, '../build/index.html'));
+  res.sendFile(path.resolve(__dirname, 'build/index.html'));
 })
 
 // app.use(express.static("public"));
