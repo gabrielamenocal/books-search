@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import SearchBook  from "../src/components/pages/SearchBook";
 import SaveBook  from "../src/components/pages/SearchBook";
 import Nav from "../src/components/Nav";
+import Footer from "../src/components/Footer";
+
 import {Container, Row, Col} from "../src/components/Grid";
 
 import Jumbotron  from "../src/components/Jumbotron";
@@ -29,6 +31,7 @@ render () {
 
       </div>    
 
+
     </Container>
 
 
@@ -37,4 +40,5 @@ render () {
   )
 }
 }
+
 export default App;

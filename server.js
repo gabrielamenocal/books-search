@@ -4,8 +4,12 @@ const routes = require("./routes/api");
 var cheerio = require("cheerio");
 var axios = require("axios");
 var app = express();
-
-var PORT = process.env.PORT || 3000;
+var bodyParser = require('body-parser')
+var cors = require('cors')
+app.use(cors())
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+var PORT = process.env.PORT || 4000;
 
 
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/userdb";
@@ -14,9 +18,19 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true })
 var db = require("./models");
 
 
-app.post("/submit", function(req, res) {  
-  
+app.post("/books", function(req, res) {   
+  console.log(req.body)
   db.book.create(req.body)
+    .then(function(dbbook) {
+      res.json(dbbook);
+    })
+    .catch(function(err) {
+      res.json(err);
+    });
+});
+
+app.get("/books", function(req, res) {   
+  db.book.find(req.body)
     .then(function(dbbook) {
       res.json(dbbook);
     })
@@ -29,15 +43,6 @@ app.post("/submit", function(req, res) {
 
 
 
-// app.get("/comments", function(req, res){
-//   comments.find()
-//   .then(function(comments) {
-//     res.json(comments);
-//   })
-//   .catch(function(err) {
-//     res.json(err);
-//   });
-// })
 
 
 

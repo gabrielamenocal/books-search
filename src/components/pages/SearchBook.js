@@ -3,13 +3,22 @@ import React, { Component } from 'react';
 import { Input, FormBtn } from "../Form";
 import { Nav} from "../Nav";
 import {Container, Row, Col} from "../Grid";
+import Footer from "../Footer";
+import API from "../../utils/API"
+
+
 
 
 
 
 // GET https://www.googleapis.com/books/v1/volumes?q=quilting
 
-
+const prepareCall= (endpoint)=>{
+  if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+    return 'http://localhost:4000'+endpoint
+}
+   return endpoint
+}
 
 class SearchBook extends Component {
 
@@ -24,16 +33,21 @@ class SearchBook extends Component {
   }
   
   componentDidMount(){
-    fetch("https://www.googleapis.com/books/v1/volumes?q=quantum").then(data => {
-      return data.json()
-    }).then(data => {
-      console.log(data)
-      this.setState({books:data.items})
-    } )
+    this.searchBook("quantum");
+    
   }
 
+  loadBooks = () => {
+    API.getBooks()
+      .then(res =>
+        this.setState({ books: res.data, title: "", author: "", synopsis: "" })
+      )
+      .catch(err => console.log(err));
+  };
 
-  
+
+
+
 
   saveBook(event){
     var payload = {
@@ -46,23 +60,24 @@ class SearchBook extends Component {
 
 
 
-  // fetch('http://localhost:3000/path', {
-  //   method: 'POST',
-  //   body: JSON.stringify(payload),
-  //   headers: {
-  //       'Content-Type': 'application/json',
-  //       'Accept': 'application/json',
-  //   }
-  // })
-  // .then(response => {
-  //   return response.json()
-  // })
-  // .then(data => {
-  //   console.log(data);
-  // })
-  // .catch(message => {
-  //   console.log(message);
-  // })
+  fetch(prepareCall('/books'), {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+    }
+  })
+  .then(response => {
+    return response.json()
+  })
+  .then(data => {
+    console.log(data);
+  })
+  .catch(message => {
+    console.log(message);
+  })
+
   }
 
   handleChange = (event)=> {
@@ -92,9 +107,21 @@ class SearchBook extends Component {
   handleSubmit= (event)=> {
     event.preventDefault();
     console.log(this.state.input);
+    this.searchBook(this.state.input.title);
 
   }
 
+  searchBook = (book) => {
+    
+    fetch("https://www.googleapis.com/books/v1/volumes?q=" + book).then(data => {
+      return data.json()
+    }).then(data => {
+      console.log(data)
+      this.setState({books:data.items})
+    } )
+    
+
+  }
   
 
   render() {
@@ -103,8 +130,9 @@ class SearchBook extends Component {
 
     var displaybooks = this.state.books.map ((eachitem, index) => 
     <div key={index}> 
-      <h2> {eachitem.volumeInfo.title}</h2>
-      <p> {eachitem.volumeInfo.authors[0]} </p> <button onClick={this.saveBook} data-title={eachitem.volumeInfo.title} data-author={eachitem.volumeInfo.authors[0]} data-description={eachitem.volumeInfo.description}> Save </button>
+      <h3> Title: {eachitem.volumeInfo.title}</h3>
+      <p> Author: {eachitem.volumeInfo.authors[0]} </p> 
+      <button className="btn btn-primary" onClick={this.saveBook} data-title={eachitem.volumeInfo.title} data-author={eachitem.volumeInfo.authors[0]} data-description={eachitem.volumeInfo.description}> Save </button>
     </div>
     ) 
 
@@ -114,11 +142,11 @@ class SearchBook extends Component {
 
            <Nav> </Nav>
 
-           <form>
+           <form onSubmit={this.handleSubmit}>
               <Input onChange = {this.handleChange} name="title" placeholder="Title..." />
               <Input onChange = {this.handleChange} name="author" placeholder="Author... " />
               <Input onChange = {this.handleChange} name="topic" placeholder="Topic... " />
-              <FormBtn onClick={this.handleSubmit}>Search</FormBtn>
+              <FormBtn >Search</FormBtn>
             </form>
 
 
@@ -127,12 +155,15 @@ class SearchBook extends Component {
 
       {/* <Row> test </Row> */}
       <Col size="md-6 sm-12">       
-          <p> {displaybooks} </p>     
+          <div className="displaybooks"> {displaybooks} </div>     
        </Col>
 
+            <Footer> </Footer>
 
 
       </div>
+
+
 
     );
   }
